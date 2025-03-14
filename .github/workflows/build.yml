@@ -10,18 +10,18 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        goos: [linux, darwin, windows]
-        goarch: [amd64]
-        include:
+        platform:
           - os: ubuntu-latest
             goos: linux
+            goarch: amd64
           - os: macos-latest
             goos: darwin
+            goarch: amd64
           - os: windows-latest
             goos: windows
+            goarch: amd64
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.platform.os }}
 
     steps:
     - uses: actions/checkout@v3
@@ -33,11 +33,11 @@ jobs:
         cache: true
 
     - name: Install Linux dependencies
-      if: matrix.os == 'ubuntu-latest'
+      if: matrix.platform.os == 'ubuntu-latest'
       run: sudo apt-get update && sudo apt-get install -y libgtk-3-dev libayatana-appindicator3-dev
 
     - name: Install Windows dependencies
-      if: matrix.os == 'windows-latest'
+      if: matrix.platform.os == 'windows-latest'
       run: choco install mingw -y
 
     - name: Tidy and verify dependencies
@@ -47,30 +47,30 @@ jobs:
 
     - name: Build binary
       env:
-        GOOS: ${{ matrix.goos }}
-        GOARCH: ${{ matrix.goarch }}
-        CGO_ENABLED: 1  # Enable CGO for systray
+        GOOS: ${{ matrix.platform.goos }}
+        GOARCH: ${{ matrix.platform.goarch }}
+        CGO_ENABLED: 1
       run: |
-        go build -v -o tempodipomo${{ matrix.goos == 'windows' && '.exe' || '' }}
+        go build -v -o tempodipomo${{ matrix.platform.goos == 'windows' && '.exe' || '' }}
 
     - name: Install nfpm (Linux only)
-      if: matrix.goos == 'linux'
+      if: matrix.platform.goos == 'linux'
       run: |
         curl -sfL https://github.com/goreleaser/nfpm/releases/download/v2.35.1/nfpm_2.35.1_Linux_x86_64.tar.gz | tar xz
         sudo mv nfpm /usr/local/bin/
 
     - name: Build DEB package (Linux only)
-      if: matrix.goos == 'linux'
+      if: matrix.platform.goos == 'linux'
       run: nfpm pkg --packager deb --target tempodipomo_${{ github.run_number }}_amd64.deb
 
     - name: Build RPM package (Linux only)
-      if: matrix.goos == 'linux'
+      if: matrix.platform.goos == 'linux'
       run: nfpm pkg --packager rpm --target tempodipomo-${{ github.run_number }}-1.x86_64.rpm
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: tempodipomo-${{ matrix.goos }}-${{ matrix.goarch }}
+        name: tempodipomo-${{ matrix.platform.goos }}-${{ matrix.platform.goarch }}
         path: |
           tempodipomo
           tempodipomo.exe
