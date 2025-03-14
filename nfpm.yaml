@@ -11,9 +11,9 @@ contents:
     dst: /usr/bin/tempodipomo
 
 deb:
-  depends:
-    - libgtk-3-0  # Dependency for systray on Debian/Ubuntu
+  dependencies:
+    - libgtk-3-0  # Runtime dependency for systray on Debian/Ubuntu
 
 rpm:
-  depends:
-    - gtk3        # Dependency for systray on CentOS/RedHat
+  dependencies:
+    - gtk3        # Runtime dependency for systray on CentOS/RedHat
