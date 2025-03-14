@@ -19,8 +19,11 @@ jobs:
 
     - name: Install git-cliff
       run: |
-        curl -sL https://github.com/orhun/git-cliff/releases/latest/download/git-cliff-$(uname -s)-$(uname -m) -o /usr/local/bin/git-cliff
-        chmod +x /usr/local/bin/git-cliff
+        export version=2.8.0
+        curl -sL "https://github.com/orhun/git-cliff/releases/download/v${version}/git-cliff-${version}-x86_64-unknown-linux-gnu.tar.gz" -o git-cliff-${version}-x86_64-unknown-linux-gnu.tar.gz
+        tar -xvzf git-cliff-*.tar.gz
+        cd "git-cliff-${version}"
+        mv ./git-cliff /usr/local/bin/git-cliff
 
     - name: Generate Changelog
       run: |
