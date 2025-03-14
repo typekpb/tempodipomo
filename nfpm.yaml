@@ -16,5 +16,5 @@ overrides:
       - libgtk-3-0  # Runtime dependency for systray on Debian/Ubuntu
 
   rpm:
-    dependencies:
+    depends:
       - gtk3        # Runtime dependency for systray on CentOS/RedHat
