@@ -74,8 +74,8 @@ jobs:
         path: |
           tempodipomo
           tempodipomo.exe
-          tempodipomo_${{ github.run_number }}_amd64.deb
-          tempodipomo-${{ github.run_number }}-1.x86_64.rpm
+          tempodipomo_0.0.${{ github.run_number }}_amd64.deb
+          tempodipomo-0.0.${{ github.run_number }}-1.x86_64.rpm
 
   release:
     needs: build
