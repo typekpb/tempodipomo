@@ -98,7 +98,7 @@ jobs:
           artifacts/tempodipomo-darwin-amd64/tempodipomo
           artifacts/tempodipomo-linux-amd64/tempodipomo
           artifacts/tempodipomo-linux-amd64/tempodipomo_${{ github.run_number }}_amd64.deb
-          artifacts/tempodipomo-linux-amd64/tempodipomo-${{ github.run_number }}-1.x86_64.rpm
+          artifacts/tempodipomo-linux-amd64/tempodipomo_${{ github.run_number }}-1.x86_64.rpm
           artifacts/tempodipomo-windows-amd64/tempodipomo.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
