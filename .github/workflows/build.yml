@@ -1,0 +1,86 @@
+name: Build TempoDiPomo App
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        platform:
+          - os: ubuntu-latest
+            goos: linux
+            goarch: amd64
+          - os: macos-latest
+            goos: darwin
+            goarch: amd64
+          - os: windows-latest
+            goos: windows
+            goarch: amd64
+
+    runs-on: ${{ matrix.platform.os }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: '1.21'
+        cache: true
+
+    - name: Install Linux dependencies
+      if: matrix.platform.os == 'ubuntu-latest'
+      run: sudo apt-get update && sudo apt-get install -y libgtk-3-dev libayatana-appindicator3-dev
+
+    - name: Install Windows dependencies
+      if: matrix.platform.os == 'windows-latest'
+      run: choco install mingw -y
+
+    - name: Tidy and verify dependencies
+      run: |
+        go mod tidy
+        go mod verify
+
+    - name: Build binary
+      env:
+        GOOS: ${{ matrix.platform.goos }}
+        GOARCH: ${{ matrix.platform.goarch }}
+        CGO_ENABLED: 1
+      run: |
+        go build -v -o tempodipomo${{ matrix.platform.goos == 'windows' && '.exe' || '' }}
+
+    - name: Install nfpm (Linux only)
+      if: matrix.platform.goos == 'linux'
+      run: |
+        curl -sfL https://github.com/goreleaser/nfpm/releases/download/v2.41.3/nfpm_2.41.3_Linux_x86_64.tar.gz | tar xz
+        sudo mv nfpm /usr/local/bin/
+
+    - name: Build DEB package (Linux only)
+      if: matrix.platform.goos == 'linux'
+      run: nfpm pkg --packager deb --target tempodipomo_${{ github.run_number }}_amd64.deb
+
+    - name: Build RPM package (Linux only)
+      if: matrix.platform.goos == 'linux'
+      run: nfpm pkg --packager rpm --target tempodipomo-${{ github.run_number }}-1.x86_64.rpm
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: tempodipomo-${{ matrix.platform.goos }}-${{ matrix.platform.goarch }}
+        path: |
+          tempodipomo
+          tempodipomo.exe
+          tempodipomo_0.0.${{ github.run_number }}_amd64.deb
+          tempodipomo-0.0.${{ github.run_number }}-1.x86_64.rpm
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3

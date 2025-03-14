@@ -1,0 +1,62 @@
+name: Release TempoDiPomo
+
+on:
+  workflow_run:
+    workflows: ["Build TempoDiPomo App"]
+    types: 
+      - completed
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install git-cliff
+      run: |
+        curl -sL https://github.com/orhun/git-cliff/releases/latest/download/git-cliff-$(uname -s)-$(uname -m) -o /usr/local/bin/git-cliff
+        chmod +x /usr/local/bin/git-cliff
+
+    - name: Generate Changelog
+      run: |
+        git-cliff --tag v0.0.${{ github.run_number }} -o changelog.md
+        cat changelog.md
+
+    - name: Download Linux artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: tempodipomo-linux-amd64
+        path: ./artifacts
+
+    - name: Download macOS artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: tempodipomo-darwin-amd64
+        path: ./artifacts
+
+    - name: Download Windows artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: tempodipomo-windows-amd64
+        path: ./artifacts
+
+    - name: Set Release Version
+      id: version
+      run: echo "VERSION=0.0.${{ github.run_number }}" >> $GITHUB_ENV
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v${{ env.VERSION }}
+        name: Release v${{ env.VERSION }}
+        body_path: changelog.md
+        draft: false
+        prerelease: false
+        files: ./artifacts/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
