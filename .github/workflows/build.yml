@@ -56,7 +56,7 @@ jobs:
     - name: Install nfpm (Linux only)
       if: matrix.platform.goos == 'linux'
       run: |
-        curl -sfL https://github.com/goreleaser/nfpm/releases/download/v2.35.1/nfpm_2.35.1_Linux_x86_64.tar.gz | tar xz
+        curl -sfL https://github.com/goreleaser/nfpm/releases/download/v2.41.3/nfpm_2.41.3_Linux_x86_64.tar.gz | tar xz
         sudo mv nfpm /usr/local/bin/
 
     - name: Build DEB package (Linux only)
@@ -84,21 +84,3 @@ jobs:
     
     steps:
     - uses: actions/checkout@v3
-    
-    - name: Download artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: artifacts
-    
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: v${{ github.run_number }}
-        files: |
-          artifacts/tempodipomo-darwin-amd64/tempodipomo
-          artifacts/tempodipomo-linux-amd64/tempodipomo
-          artifacts/tempodipomo-linux-amd64/tempodipomo_${{ github.run_number }}_amd64.deb
-          artifacts/tempodipomo-linux-amd64/tempodipomo_${{ github.run_number }}-1.x86_64.rpm
-          artifacts/tempodipomo-windows-amd64/tempodipomo.exe
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
