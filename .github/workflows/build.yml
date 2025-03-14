@@ -37,14 +37,12 @@ jobs:
       with:
         go-version: '1.21'
 
-    - name: Install dependencies
-      run: go get github.com/getlantern/systray
-
     - name: Build binary
       env:
         GOOS: ${{ matrix.goos }}
         GOARCH: ${{ matrix.goarch }}
       run: |
+        go mod tidy  # Ensure go.mod is clean and fetches dependencies
         if [ "$GOOS" = "windows" ]; then
           go build -o tempodipomo.exe
         else
@@ -84,7 +82,7 @@ jobs:
     - uses: actions/checkout@v3
     
     - name: Download artifacts
-      uses: actions/download-artifact@v4 
+      uses: actions/download-artifact@v4
       with:
         path: artifacts
     
