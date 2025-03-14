@@ -1,0 +1,19 @@
+name: "tempodipomo"
+arch: "amd64"
+version: "0.0.${{ github.run_number }}"
+maintainer: "Peter Butkovic <butkovic@gmail.com>"
+description: "A cross-platform Pomodoro timer in the system tray"
+homepage: "https://github.com/typekpb/tempodipomo"
+license: "MIT"
+
+contents:
+  - src: ./tempodipomo
+    dst: /usr/bin/tempodipomo
+
+deb:
+  depends:
+    - libgtk-3-0  # Dependency for systray on Debian/Ubuntu
+
+rpm:
+  depends:
+    - gtk3        # Dependency for systray on CentOS/RedHat
