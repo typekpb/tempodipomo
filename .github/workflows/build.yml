@@ -9,23 +9,17 @@ on:
 jobs:
   build:
     strategy:
-      matrix:
+matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         goos: [linux, darwin, windows]
         goarch: [amd64]
-        exclude:
+        include:
           - os: ubuntu-latest
-            goos: darwin
-          - os: ubuntu-latest
-            goos: windows
-          - os: macos-latest
             goos: linux
           - os: macos-latest
-            goos: windows
-          - os: windows-latest
-            goos: linux
-          - os: windows-latest
             goos: darwin
+          - os: windows-latest
+            goos: windows
 
     runs-on: ${{ matrix.os }}
 
